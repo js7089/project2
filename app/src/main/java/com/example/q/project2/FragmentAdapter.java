@@ -22,11 +22,6 @@ public class FragmentAdapter extends FragmentStatePagerAdapter {
         switch (position) {
             case 0 :
                 return new Contacts();
-<<<<<<< HEAD
-=======
-//                return new GridViewFragment();
-
->>>>>>> 155114e0547396625890b55d18791c6e029fda54
             case 1 :
                 return new GridViewFragment();
             case 2 :
