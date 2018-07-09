@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     };
     private static final int REQUEST_ALL = 10;
     private static final String TAG = "MainActivity";
-    CallbackManager callbackManager;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_ALL);
-        callbackManager = CallbackManager.Factory.create();
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -58,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.exchange));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        //ActivityCompat.requestPermissions(this, PERMISSIONS, 3);
 
         viewPager = findViewById(R.id.pager);
         FragmentAdapter pagerAdapter = new FragmentAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
