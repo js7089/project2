@@ -11,6 +11,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.Window;
+
+import com.facebook.CallbackManager;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -22,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     };
     private static final int REQUEST_ALL = 10;
     private static final String TAG = "MainActivity";
-
+    CallbackManager callbackManager;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_ALL);
+        callbackManager = CallbackManager.Factory.create();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

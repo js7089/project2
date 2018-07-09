@@ -23,4 +23,14 @@
             <Button android:layout_height="wrap_content" android:layout_width="0dp" android:id="@+id/download_pno" android:layout_weight="0.35" android:text="다운로드"/>
         </TableRow>
 </TableLayout>
+
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp" />
+
 </LinearLayout>
