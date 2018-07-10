@@ -147,7 +147,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
 
     private String JSONForm(String from, String uniqueUserID){ // 전체 주소록을 parsing
         String[] arrayofContacts = from.split("\n");
-        String result = "{\"userid\":" + uniqueUserID + ",";
+        String result = "{\"hash\":" + uniqueUserID + ",";
         String CtList = "";
         result += "contacts=[";
         if(arrayofContacts.length == 0){
@@ -249,7 +249,13 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
             public void onClick(View view) {
                 String sent = JSONForm(getContacts(lv),accountUID); // the JSON String (String form)
                 try {
-                    JSONObject contact_jsonobj = new JSONObject(sent);
+                    JSONObject contact_jsonobj = new JSONObject(sent); // The actual JSON Object to be sent
+                    // SEND REQUEST TO POST METHOD CODE
+                    // 52.162.211.235:7714 / contact?hash=213412341 :받아오기(GET)
+                    // /contactHandle    (POST) hash : 132412341, contacts : [{ "name" : "asdfh"
+
+
+                    //
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
