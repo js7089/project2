@@ -1,19 +1,26 @@
 package com.example.q.project2;
 
 import android.Manifest;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.Window;
 
 import com.facebook.CallbackManager;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 
 
 public class MainActivity extends AppCompatActivity {
@@ -30,6 +37,10 @@ public class MainActivity extends AppCompatActivity {
     };
     private static final int REQUEST_ALL = 10;
     private static final String TAG = "MainActivity";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7a9f64136b7d5e251b4146392351d1ada85c4f54
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
