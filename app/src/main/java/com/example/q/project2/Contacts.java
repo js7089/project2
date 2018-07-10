@@ -42,6 +42,14 @@ import com.facebook.login.widget.LoginButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -246,23 +254,69 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         });
         //getContacts(lv); :
 
+        Button btn_download = (Button) view.findViewById(R.id.download_pno);
+        btn_download.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+
         Button btn_upload = (Button) view.findViewById(R.id.upload_pno);
         btn_upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String sent = JSONForm(getContacts(lv),accountUID); // the JSON String (String form)
+                String sent = JSONForm(getContacts(lv),"test"); // the JSON String (String form)
                 try {
-                    JSONObject contact_jsonobj = new JSONObject(sent); // The actual JSON Object to be sent
-                    // SEND REQUEST TO POST METHOD CODE
-                    // 52.162.211.235:7714 / contact?hash=213412341 :받아오기(GET)
-                    // /contactHandle    (POST) hash : 132412341, contacts : [{ "name" : "asdfh"
+                    final JSONObject contact_jsonobj = new JSONObject(sent); // The actual JSON Object to be sent
 
+                    new Thread(){
+                        public void run(){
+                            try {
+                                // SEND REQUEST TO POST METHOD CODE
+                                // 52.162.211.235:7714 / contact?hash=213412341 :받아오기(GET)
+                                // /contactHandle    (POST) hash : 132412341, contacts : [{ "name" : "asdfh"
+                                URL url = new URL("http://52.162.211.235:7714/contactHandle");
+                                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                                httpURLConnection.setRequestMethod("POST");
+                                httpURLConnection.setDoOutput(true);
+                                httpURLConnection.setRequestProperty("Content-Type","application/json");
+                                httpURLConnection.setRequestProperty("Accept","application/json");
 
-                    //
+                                DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
+                                wr.write(contact_jsonobj.toString().getBytes());
+                                Integer responsecode = httpURLConnection.getResponseCode();
+
+                                BufferedReader bufferedReader;
+
+                                if(responsecode>199 && responsecode < 300){
+                                    bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+                                } else {
+                                    bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getErrorStream()));
+                                }
+                                // get response part
+                                StringBuilder content = new StringBuilder();
+                                String line;
+                                while ((line=bufferedReader.readLine()) != null) {
+                                    content.append(line).append("\n");
+                                }
+                                bufferedReader.close();
+
+                                Log.i("response",content.toString());
+                                /// POST TO SERVER
+                            } catch (ProtocolException e) {
+                                e.printStackTrace();
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }.start();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             }
         });
 
