@@ -362,9 +362,9 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                             // Add these on Listview
                             insertContact(getContext(), pNo, ContactName);
                         }
-                        getContacts(lv);
                     }
                 }.start();
+                getContacts(lv);
             }
         });
 
