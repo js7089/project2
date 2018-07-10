@@ -9,6 +9,26 @@
     android:id="@+id/swipe_layout_contacts"
     android:background="@color/floralwhite">
 
+<<<<<<< HEAD
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ListView
+                android:id="@+id/listview_contacts"
+                android:layout_width="0dp"
+                android:layout_height="400dp"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView  android:text=" " android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.3"/>
+=======
     <TableLayout android:layout_height="match_parent" android:layout_width="match_parent" tools:layout_editor_absoluteY="16dp" tools:layout_editor_absoluteX="0dp">
         <TableRow android:layout_height="match_parent" android:layout_width="match_parent">
 
@@ -28,14 +48,26 @@
             <Button android:layout_height="wrap_content" android:layout_width="0dp" android:id="@+id/download_pno" android:layout_weight="0.35" android:text="다운로드"/>
         </TableRow>
         <TableRow android:layout_height="match_parent" android:layout_width="match_parent">
+>>>>>>> 7a9f64136b7d5e251b4146392351d1ada85c4f54
             <com.facebook.login.widget.LoginButton
                 android:id="@+id/login_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="30dp"
+<<<<<<< HEAD
+                android:layout_marginBottom="30dp"
+                android:layout_weight="0.4"/>
+            <TextView  android:text=" " android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.3"/>
+        </TableRow>
+    </TableLayout>
+
+
+
+=======
                 android:layout_marginBottom="30dp" />
         </TableRow>
     </TableLayout>
+>>>>>>> 7a9f64136b7d5e251b4146392351d1ada85c4f54
 
 </android.support.v4.widget.SwipeRefreshLayout>
