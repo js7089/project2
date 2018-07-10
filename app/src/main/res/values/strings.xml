@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">project2</string>
-    <string name="facebook_app_id">[APP_ID]</string>
-    <string name="fb_login_protocol_scheme">fb[APP_ID]</string>
+    <string name="facebook_app_id">197867621058104</string>
+    <string name="fb_login_protocol_scheme">fb197867621058104</string>
 </resources>

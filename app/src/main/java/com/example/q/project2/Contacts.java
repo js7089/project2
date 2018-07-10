@@ -16,44 +16,49 @@ import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.telecom.Call;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.Profile;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
-    public Contacts(){ }
+    public Contacts(){ } // constructor
+
     private ListView lv = null;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private String phone, name, contactName;
     private ListAdapter listAdapter;
-    //private String TAG="Contacts";
-    //private static final int REQUEST_CONTACT=1;
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.contacts, container, false);
+    private String accountUID; // facebook unique id
 
-        if (ContextCompat.checkSelfPermission(getContext(),Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(getContext(),Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(getContext(),Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(getContext(),Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            return view;
-        }
+    LoginButton loginButton;
+    CallbackManager callbackManager;
 
-        mSwipeRefreshLayout = view.findViewById(R.id.swipe_layout_contacts);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-
-        lv = view.findViewById(R.id.listview_contacts);
-
+    private String getContacts(ListView lv){
         ContentResolver cr = getActivity().getContentResolver();
         Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
 
@@ -72,7 +77,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
             //Log.d(TAG,"Contact_id is " + ContactsContract.CommonDataKinds.Phone.CONTACT_ID);
             int typeidx = cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
             int numidx = cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-//            Log.d(TAG,"사용자 ID : " + cursor2.getString(0));
+//            Log.d(TAG,"사용자 ID : " +   cursor2.getString(0));
 //            Log.d(TAG,"사용자 이름 : " + cursor2.getString(1));
 
             while (cursor2.moveToNext()){
@@ -82,10 +87,10 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                         result.append("\t Mobile:"+num);
                         break;
                     case ContactsContract.CommonDataKinds.Phone.TYPE_HOME:
-                        result.append("\t Home:"+num);
+//                        result.append("\t Home:"+num);
                         break;
                     case ContactsContract.CommonDataKinds.Phone.TYPE_WORK:
-                        result.append("\t Work:"+num);
+                        //                       result.append("\t Work:"+num);
                         break;
                 }
             }
@@ -95,6 +100,8 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         }
         cursor.close();
 
+
+//        Log.i("addrList",result.toString());
         //inflate was here
         String str= result.toString();
         ArrayList<String>arr_list = new ArrayList<>();
@@ -109,13 +116,6 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
             public View getView(int position, View convertView, ViewGroup parent){
                 // Cast the list view each item as text view
                 TextView item = (TextView) super.getView(position,convertView,parent);
-
-
-
-                // Set the list view item's text color
-                item.setTextColor(Color.parseColor("#000000")); // Black
-                Typeface customFont = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Chewy.ttf");
-                item.setTypeface(customFont);
 
                 // return the view
                 return item;
@@ -137,14 +137,95 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         ListViewExampleClickListener listViewExampleClickListener = new ListViewExampleClickListener();
         lv.setOnItemClickListener(listViewExampleClickListener);
 
+        return result.toString();
+    }
+
+
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.contacts, container, false);
+        FacebookSdk.sdkInitialize(getContext());
+        if (ContextCompat.checkSelfPermission(getContext(),Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getContext(),Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getContext(),Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getContext(),Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            return view;
+        }
+
+        // facebook login check
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
+        //
+
+        // Already logged in when fragment starts
+        if(isLoggedIn) accountUID = Profile.getCurrentProfile().getId();
+
+        Toast.makeText(getContext(),"You are logged in as " + accountUID+ ".", LENGTH_LONG).show();
+
+        callbackManager = CallbackManager.Factory.create();
+
+
+        loginButton = (LoginButton) view.findViewById(R.id.login_button);
+        loginButton.setReadPermissions("email");
+        // If using in a fragment
+        loginButton.setFragment(this);
+
+        // Callback registration
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                accountUID = Profile.getCurrentProfile().getId();
+                // App code
+            }
+
+            @Override
+            public void onCancel() {
+                // App code
+            }
+
+            @Override
+            public void onError(FacebookException exception) {
+                // App code
+            }
+        });
+
+        mSwipeRefreshLayout = view.findViewById(R.id.swipe_layout_contacts);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+
+        lv = view.findViewById(R.id.listview_contacts);
+
+        Button btn_load = (Button) view.findViewById(R.id.load_pno);
+        btn_load.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getContacts(lv);
+            }
+        });
+        //getContacts(lv); :
+
+        Button btn_upload = (Button) view.findViewById(R.id.upload_pno);
+        btn_upload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String ac = "[{userid:" + accountUID
+                        + ", contacts:" + getContacts(lv) +"}]";
+                Log.i("jsonString",ac);
+            }
+        });
+
         return view;
     }
 
-    private class ListViewExampleClickListener implements AdapterView.OnItemClickListener {
 
+    private class ListViewExampleClickListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-
             String rawString = lv.getItemAtPosition(position).toString();
             String cmpPhone = "Mobile:";
             String cmpName=":";
@@ -171,9 +252,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                     if(phone==""){
                         String contactID = null;
                         ContentResolver contentResolver = getActivity().getContentResolver();
-
                         Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, Uri.encode(phone));
-
                         Cursor cursor = contentResolver.query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup._ID}, null,null,null);
 
                         if(cursor!=null){
@@ -219,9 +298,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                     } catch (Exception e){
                         e.printStackTrace();
                     }
-
                 }
-
             });
             builder.setNegativeButton("Send", new DialogInterface.OnClickListener() {
                 @Override
@@ -233,12 +310,9 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                     } catch (Exception e){
                         e.printStackTrace();
                     }
-
                 }
-
             });
             builder.show();
-
         }
     }
 
@@ -247,7 +321,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         new Handler().postDelayed(new Runnable(){
             @Override
             public void run(){
-
+                /*
                 ContentResolver cr = getActivity().getContentResolver();
                 Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
 
@@ -276,10 +350,10 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                                 result.append("\t Mobile:"+num);
                                 break;
                             case ContactsContract.CommonDataKinds.Phone.TYPE_HOME:
-                                result.append("\t Home:"+num);
+//                                result.append("\t Home:"+num);
                                 break;
                             case ContactsContract.CommonDataKinds.Phone.TYPE_WORK:
-                                result.append("\t Work:"+num);
+ //                               result.append("\t Work:"+num);
                                 break;
                         }
                     }
@@ -292,7 +366,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                 //inflate was here
                 String str= result.toString();
                 ArrayList<String>arr_list = new ArrayList<>();
-                String[] str1=str.split("\n");
+                String[] str1=str.split(""); \n
                 for(int i=0;i<str1.length;i++)
                     arr_list.add(str1[i]);
 
@@ -303,12 +377,6 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                         // Cast the list view each item as text view
                         TextView item = (TextView) super.getView(position,convertView,parent);
 
-
-                        // Set the list view item's text color
-                        item.setTextColor(Color.parseColor("#000000")); // Black
-                        Typeface customFont = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Chewy.ttf");
-                        item.setTypeface(customFont);
-
                         // return the view
                         return item;
                     }
@@ -317,7 +385,6 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
 
                 // Assign adapter to ListView
                 adapter.sort(new Comparator<String>(){
-
                     @Override
                     public int compare(String arg1,String arg0){
                         return arg1.compareTo(arg0);
@@ -325,6 +392,8 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                 });
                 lv.setAdapter(adapter);
 
+                */
+                String resultString = getContacts(lv);
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         }, 500);

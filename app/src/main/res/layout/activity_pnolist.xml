@@ -5,32 +5,31 @@
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <TableLayout android:layout_height="match_parent" android:layout_width="match_parent" tools:layout_editor_absoluteY="16dp" tools:layout_editor_absoluteX="0dp">
-    <TableRow android:layout_height="match_parent" android:layout_width="match_parent">
+        <TableRow android:layout_height="match_parent" android:layout_width="match_parent">
 
-        <ListView
-            android:id="@+id/mylist"
-            android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:layout_weight="1"
-            android:scrollbars="vertical" />
-</TableRow>
-    <TableRow android:layout_height="wrap_content" android:layout_width="match_parent">
-        <Button android:layout_height="wrap_content" android:layout_width="0dp" android:id="@+id/new_pno" android:layout_weight="0.35" android:text="새 연락처"/>
-        <Button android:layout_height="wrap_content" android:layout_width="0dp" android:id="@+id/load_pno" android:layout_weight="0.35" android:text="연락처 가져오기"/>
-    </TableRow>
+            <ListView
+                android:id="@+id/listview_contacts"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:layout_weight="1"
+                android:scrollbars="vertical" />
+        </TableRow>
+        <TableRow android:layout_height="wrap_content" android:layout_width="match_parent">
+            <Button android:layout_height="wrap_content" android:layout_width="0dp" android:id="@+id/new_pno" android:layout_weight="0.35" android:text="새 연락처"/>
+            <Button android:layout_height="wrap_content" android:layout_width="0dp" android:id="@+id/load_pno" android:layout_weight="0.35" android:text="연락처 가져오기"/>
+        </TableRow>
         <TableRow android:layout_height="wrap_content" android:layout_width="match_parent" >
             <Button android:layout_height="wrap_content" android:layout_width="0dp" android:id="@+id/upload_pno" android:layout_weight="0.35" android:text="업로드"/>
             <Button android:layout_height="wrap_content" android:layout_width="0dp" android:id="@+id/download_pno" android:layout_weight="0.35" android:text="다운로드"/>
         </TableRow>
-</TableLayout>
-
-
-    <com.facebook.login.widget.LoginButton
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp" />
-
+        <Tablerow android:layout_height="match_parent" android:layout_width="match_parent">
+            <com.facebook.login.widget.LoginButton
+                android:id="@+id/login_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp" />
+        </Tablerow>
+    </TableLayout>
 </LinearLayout>
