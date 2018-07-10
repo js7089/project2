@@ -39,6 +39,9 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -137,7 +140,38 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         ListViewExampleClickListener listViewExampleClickListener = new ListViewExampleClickListener();
         lv.setOnItemClickListener(listViewExampleClickListener);
 
+        Log.i("getContacts()",result.toString());
         return result.toString();
+
+    }
+
+    private String JSONForm(String from, String uniqueUserID){ // 전체 주소록을 parsing
+        String[] arrayofContacts = from.split("\n");
+        String result = "{\"userid\":" + uniqueUserID + ",";
+        String CtList = "";
+        result += "contacts=[";
+        if(arrayofContacts.length == 0){
+            result += "]}";
+            Log.i("JSonParser(Empty)",result);
+            return result;
+        }
+
+        for(String line : arrayofContacts){
+            String[] tmp = line.split(":");
+            String item = "{\"name\":";
+            item += ("\"" + tmp[0] + "\"");
+            item += ",";
+            item += "\"phone\":"
+            ;
+            item += ("\"" + tmp[2] + "\"");
+            item += "}";
+            CtList += (item + ",");
+        }
+        CtList = CtList.substring(0,CtList.length()-1);
+        result += CtList;
+        result += "]}";
+        Log.i("JSONParser",result);
+        return result;
     }
 
 
@@ -213,9 +247,13 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         btn_upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String ac = "[{userid:" + accountUID
-                        + ", contacts:" + getContacts(lv) +"}]";
-                Log.i("jsonString",ac);
+                String sent = JSONForm(getContacts(lv),accountUID); // the JSON String (String form)
+                try {
+                    JSONObject contact_jsonobj = new JSONObject(sent);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
 
