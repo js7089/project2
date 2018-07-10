@@ -6,11 +6,13 @@ package com.example.q.project2;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,6 +54,7 @@ public class GridViewFragment extends Fragment implements SwipeRefreshLayout.OnR
         // loading all image paths from SD card
         imagePaths = utils.getFilePaths();
 
+
         // Gridview adapter
         adapter = new GridViewImageAdapter(getActivity(), imagePaths,
                 columnWidth);
@@ -76,6 +79,7 @@ public class GridViewFragment extends Fragment implements SwipeRefreshLayout.OnR
                 (int) padding);
         gridView.setHorizontalSpacing((int) padding);
         gridView.setVerticalSpacing((int) padding);
+
     }
 
     @Override
@@ -92,6 +96,7 @@ public class GridViewFragment extends Fragment implements SwipeRefreshLayout.OnR
 
                 // loading all image paths from SD card
                 imagePaths = utils.getFilePaths();
+
 
                 // Gridview adapter
                 adapter = new GridViewImageAdapter(getActivity(), imagePaths,

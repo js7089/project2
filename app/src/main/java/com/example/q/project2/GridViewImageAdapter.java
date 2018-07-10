@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,11 +13,15 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+
+import static com.example.q.project2.Contacts.accountUID;
 
 public class GridViewImageAdapter extends BaseAdapter {
 
@@ -46,7 +52,7 @@ public class GridViewImageAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ImageView imageView;
         if (convertView == null) {
             imageView = new ImageView(_activity);
@@ -55,7 +61,7 @@ public class GridViewImageAdapter extends BaseAdapter {
         }
 
         // get screen dimensions
-        Bitmap image = decodeFile(_filePaths.get(position), imageWidth,
+        final Bitmap image = decodeFile(_filePaths.get(position), imageWidth,
                 imageWidth);
 
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -63,8 +69,27 @@ public class GridViewImageAdapter extends BaseAdapter {
                 imageWidth));
         imageView.setImageBitmap(image);
 
+
         // image view click listener
         imageView.setOnClickListener(new OnImageClickListener(position));
+        imageView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                byte[] byteArray = byteArrayOutputStream .toByteArray();
+                String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
+                String json_to_img = "\\{\"hash\":" + Contacts.accountUID
+                        + ",path:" + _filePaths.get(position) + ","
+                        + "image:" + encoded + "\\}";
+
+                Log.i("bytearrayIMAGE",json_to_img);
+
+                return true;
+            }
+        });
+
 
         return imageView;
     }

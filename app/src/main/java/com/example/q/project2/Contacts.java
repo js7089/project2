@@ -1,6 +1,7 @@
 package com.example.q.project2;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
@@ -68,7 +69,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
     private String phone, name, contactName;
     private ListAdapter listAdapter;
 
-    private String accountUID; // facebook unique id
+    public static String accountUID; // facebook unique id
 
     LoginButton loginButton;
     CallbackManager callbackManager;
@@ -77,6 +78,8 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phone));
 
         Cursor cur = ctx.getContentResolver().query(contactUri, null, null, null, null);
+
+        Cursor cursor = ctx.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,null,null,null);
         try {
             if (cur.moveToFirst()) {
                 do {
@@ -95,6 +98,9 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         } finally {
             cur.close();
         }
+
+
+
         return false;
     }
 
@@ -151,7 +157,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         while(cursor.moveToNext())
         {
             result.append(cursor.getString(nameidx) + ": ");
-            Log.d("Contacts Id : ", String.valueOf(ididx));
+            //Log.d("Contacts Id : ", String.valueOf(ididx));
             String id = cursor.getString(ididx);
             Cursor cursor2 = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " =?", new String[]{id},null);
             //Log.d(TAG,"Contact_id is " + ContactsContract.CommonDataKinds.Phone.CONTACT_ID);
@@ -216,7 +222,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         ListViewExampleClickListener listViewExampleClickListener = new ListViewExampleClickListener();
         lv.setOnItemClickListener(listViewExampleClickListener);
 
-        Log.i("getContacts()",result.toString());
+        //Log.i("getContacts()",result.toString());
         return result.toString();
 
     }
@@ -308,15 +314,16 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
             return view;
         }
 
+
         // facebook login check
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
+        final boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
         //
 
         // Already logged in when fragment starts
-        if(isLoggedIn) accountUID = Profile.getCurrentProfile().getId();
+        if(Profile.getCurrentProfile() != null) accountUID = Profile.getCurrentProfile().getId();
 
-        Toast.makeText(getContext(),"You are logged in as " + accountUID+ ".", LENGTH_LONG).show();
+        //Toast.makeText(getContext(),"You are logged in as " + accountUID+ ".", LENGTH_LONG).show();
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -363,13 +370,21 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         btn_download.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                final AccessToken token = AccessToken.getCurrentAccessToken();
+                if(token==null) {
+                    Toast.makeText(getContext(),"You are not logged in. Please sign in with Facebook to continue.",LENGTH_LONG).show();
+                    return;
+                }
+
                 new Thread(){
                     public void run(){
-                        //String response_result = download("test"); // "test" -> accountUID
-                        String response_result = "{\"request\":\"success\",\"contacts\":[{\"id\":2,\"user_id\":1,\"contact_name\":\"jjong\",\"phone\":\"010-1231-1234\",\"description\":null},{\"id\":4,\"user_id\":8,\"contact_name\":\"jjong9\",\"phone\":\"010-1331-1234\",\"description\":null}]}";
+                        if(token==null) return;
+                        String response_result = download(accountUID); // "test" -> accountUID
+                        //String response_result = "{\"request\":\"success\",\"contacts\":[{\"id\":2,\"user_id\":1,\"contact_name\":\"jjong\",\"phone\":\"010-1231-1234\",\"description\":null},{\"id\":4,\"user_id\":8,\"contact_name\":\"jjong9\",\"phone\":\"010-1331-1234\",\"description\":null}]}";
                         // test purpose only
-
-                        String actual_res = response_result.split("\"contacts\":")[1];
+                        String[] splicee1 = response_result.split("\"contacts\":");
+                        if(splicee1.length==1) return;
+                        String actual_res = splicee1[1];
                         actual_res = actual_res.substring(1,actual_res.length()-2);
                         String[] contacts_ = actual_res.split("\\},\\{"); // array of {"id":?, "user_id":?, "contact_name":"<name>","phone":"<>", ... }
                         for(String line:contacts_){
@@ -378,6 +393,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                         }
 
                         for(String line : contacts_){
+                            Log.i("lines",line);
                             String ContactName = ( (line.split(",")[2]).split(":\"")[1]);
                             ContactName = ContactName.substring(0,ContactName.length()-1);
                             String pNo = ((line.split(",")[3]).split(":\"")[1]);
@@ -385,11 +401,18 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                             Log.i("newString",ContactName + "\t" + pNo);
 
                             // Add these on Listview
+                            deleteContact(getContext(), pNo,ContactName);  // delete original contact if exists
+
                             insertContact(getContext(), pNo, ContactName);
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    getContacts(lv);
+                                }
+                            });
                         }
                     }
                 }.start();
-                getContacts(lv);
             }
         });
 
@@ -398,17 +421,23 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         btn_upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String sent = JSONForm(getContacts(lv),"test"); // the JSON String (String form)
+                AccessToken token = AccessToken.getCurrentAccessToken();
+                if(token==null) {
+                    Toast.makeText(getContext(),"You are not logged in. Please sign in with Facebook to continue.",LENGTH_LONG).show();
+                    return;
+                }
+
+                String sent = JSONForm(getContacts(lv),"\"test\""); // the JSON String (String form)
                 try {
                     final JSONObject contact_jsonobj = new JSONObject(sent); // The actual JSON Object to be sent
-
+                    Log.i("JsontoString",contact_jsonobj.toString());
                     new Thread(){
                         public void run(){
                             try {
                                 // SEND REQUEST TO POST METHOD CODE
                                 // 52.162.211.235:7714 / contact?hash=213412341 :받아오기(GET)
                                 // /contactHandle    (POST) hash : 132412341, contacts : [{ "name" : "asdfh"
-                                URL url = new URL("http://52.162.211.235:7714/contactHandle");
+                                URL url = new URL("http://52.162.211.235:7714/contactHandler");
                                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                                 httpURLConnection.setRequestMethod("POST");
                                 httpURLConnection.setDoOutput(true);
