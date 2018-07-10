@@ -54,7 +54,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import org.apache.http.*;
 
 
 import static android.widget.Toast.LENGTH_LONG;
@@ -120,9 +119,9 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         String str= result.toString();
         ArrayList<String>arr_list = new ArrayList<>();
         String[] str1=str.split("\n");
-        for(int i=0;i<str1.length;i++)
+        for(int i=0;i<str1.length;i++) {
             arr_list.add(str1[i]);
-
+        }
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, arr_list){
 
 
@@ -147,7 +146,6 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         });
         lv.setAdapter(adapter);
 
-
         ListViewExampleClickListener listViewExampleClickListener = new ListViewExampleClickListener();
         lv.setOnItemClickListener(listViewExampleClickListener);
 
@@ -155,6 +153,46 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         return result.toString();
 
     }
+
+    private String download(String username){
+        String result = "";
+
+        HttpURLConnection con = null;
+        InputStreamReader isr = null;
+        BufferedReader br = null;
+
+        try{
+            URL url = new URL("http://52.162.211.235:7714/contact?hash=" + username);
+            con = (HttpURLConnection) url.openConnection();
+            con.setConnectTimeout(2500);
+            con.setReadTimeout(2500);
+
+            isr = new InputStreamReader(con.getInputStream());
+            br = new BufferedReader(isr);
+
+            String str = null;
+            while ((str = br.readLine()) != null) {
+                result += str + "\n";
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            if(con != null){
+                try{con.disconnect();}catch(Exception e){}
+            }
+
+            if(isr != null){
+                try{isr.close();}catch(Exception e){}
+            }
+
+            if(br != null){
+                try{br.close();}catch(Exception e){}
+            }
+        }
+        return result;
+    }
+
 
     private String JSONForm(String from, String uniqueUserID){ // 전체 주소록을 parsing
         String[] arrayofContacts = from.split("\n");
@@ -258,7 +296,32 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         btn_download.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                new Thread(){
+                    public void run(){
+                        //String response_result = download("test"); // "test" -> accountUID
+                        String response_result = "{\"request\":\"success\",\"contacts\":[{\"id\":2,\"user_id\":1,\"contact_name\":\"jjong\",\"phone\":\"010-1231-1234\",\"description\":null},{\"id\":4,\"user_id\":8,\"contact_name\":\"jjong9\",\"phone\":\"010-1331-1234\",\"description\":null}]}";
+                        // test purpose only
 
+                        String actual_res = response_result.split("\"contacts\":")[1];
+                        actual_res = actual_res.substring(1,actual_res.length()-2);
+                        String[] contacts_ = actual_res.split("\\},\\{"); // array of {"id":?, "user_id":?, "contact_name":"<name>","phone":"<>", ... }
+                        for(String line:contacts_){
+                            if(line.startsWith("\\{")) line = line.substring(1);
+                            if(line.endsWith("\\}")) line = line.substring(0,line.length()-1);
+                        }
+
+                        for(String line : contacts_){
+                            String ContactName = ( (line.split(",")[2]).split(":\"")[1]);
+                            ContactName = ContactName.substring(0,ContactName.length()-1);
+                            String pNo = ((line.split(",")[3]).split(":\"")[1]);
+                            pNo = pNo.substring(0,pNo.length()-1);
+                            Log.i("newString",ContactName + "\t" + pNo);
+
+                            // Add these on Listview
+
+                        }
+                    }
+                }.start();
             }
         });
 
@@ -323,47 +386,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         return view;
     }
 
-    /*
-     private String getJSONFormat(String username){
-        String result = "";
 
-        HttpURLConnection con = null;
-        InputStreamReader isr = null;
-        BufferedReader br = null;
-
-        try{
-            URL url = new URL("http://52.231.65.38:5000/" + username);
-            con = (HttpURLConnection) url.openConnection();
-            con.setConnectTimeout(CONN_TIME);
-            con.setReadTimeout(CONN_TIME);
-
-            isr = new InputStreamReader(con.getInputStream());
-            br = new BufferedReader(isr);
-
-            String str = null;
-            while ((str = br.readLine()) != null) {
-                result += str + "\n";
-            }
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }finally{
-            if(con != null){
-                try{con.disconnect();}catch(Exception e){}
-            }
-
-            if(isr != null){
-                try{isr.close();}catch(Exception e){}
-            }
-
-            if(br != null){
-                try{br.close();}catch(Exception e){}
-            }
-        }
-        return result;
-    }
-
-     */
 
 
     private class ListViewExampleClickListener implements AdapterView.OnItemClickListener {
