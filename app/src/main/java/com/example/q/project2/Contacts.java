@@ -46,6 +46,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import org.apache.http.*;
+
+
 import static android.widget.Toast.LENGTH_LONG;
 
 public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -265,6 +268,48 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
 
         return view;
     }
+
+    /*
+     private String getJSONFormat(String username){
+        String result = "";
+
+        HttpURLConnection con = null;
+        InputStreamReader isr = null;
+        BufferedReader br = null;
+
+        try{
+            URL url = new URL("http://52.231.65.38:5000/" + username);
+            con = (HttpURLConnection) url.openConnection();
+            con.setConnectTimeout(CONN_TIME);
+            con.setReadTimeout(CONN_TIME);
+
+            isr = new InputStreamReader(con.getInputStream());
+            br = new BufferedReader(isr);
+
+            String str = null;
+            while ((str = br.readLine()) != null) {
+                result += str + "\n";
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            if(con != null){
+                try{con.disconnect();}catch(Exception e){}
+            }
+
+            if(isr != null){
+                try{isr.close();}catch(Exception e){}
+            }
+
+            if(br != null){
+                try{br.close();}catch(Exception e){}
+            }
+        }
+        return result;
+    }
+
+     */
 
 
     private class ListViewExampleClickListener implements AdapterView.OnItemClickListener {
