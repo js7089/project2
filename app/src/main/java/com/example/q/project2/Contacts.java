@@ -2,7 +2,9 @@ package com.example.q.project2;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -70,6 +72,46 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
 
     LoginButton loginButton;
     CallbackManager callbackManager;
+
+    public void insertContact(Context ctx, String tophone, String toname){
+        try {
+            // insert part
+            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+            ops.add(ContentProviderOperation.newInsert(
+                    ContactsContract.RawContacts.CONTENT_URI)
+                    .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                    .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                    .build());
+
+            if (tophone != null) {
+                ops.add(ContentProviderOperation.
+                        newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                        .withValue(ContactsContract.Data.MIMETYPE,
+                                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, tophone)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+                                ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+                        .build());
+            }
+            if (toname != null) {
+                ops.add(ContentProviderOperation.newInsert(
+                        ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                        .withValue(ContactsContract.Data.MIMETYPE,
+                                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                        .withValue(
+                                ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                                toname).build());
+            }
+            getActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+        }
+        catch (Exception e){
+            System.out.println(e.getStackTrace());
+        }
+    }
+
 
     private String getContacts(ListView lv){
         ContentResolver cr = getActivity().getContentResolver();
@@ -318,8 +360,9 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                             Log.i("newString",ContactName + "\t" + pNo);
 
                             // Add these on Listview
-
+                            insertContact(getContext(), pNo, ContactName);
                         }
+                        getContacts(lv);
                     }
                 }.start();
             }
