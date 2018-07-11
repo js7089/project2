@@ -79,28 +79,22 @@ public class GridViewImageAdapter extends BaseAdapter {
                 image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
                 byte[] byteArray = byteArrayOutputStream .toByteArray();
                 String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
-
                 String json_to_img = "\\{\"hash\":" + Contacts.accountUID
                         + ",path:" + _filePaths.get(position) + ","
                         + "image:" + encoded + "\\}";
-
                 Log.i("bytearrayIMAGE",json_to_img);
+                Contacts.post_string(json_to_img,"/galleryHandler");   // To Be Changed &
 
                 return true;
             }
         });
-
-
         return imageView;
     }
 
     class OnImageClickListener implements OnClickListener {
-
         int _postion=0;
-
         // constructor
         public OnImageClickListener(int position) {
-//            Log.d("ImageOnclick : ", String.valueOf(position));
             this._postion = position;
         }
 
@@ -115,9 +109,7 @@ public class GridViewImageAdapter extends BaseAdapter {
             i.putExtra("position", this._postion);
             _activity.startActivity(i);
         }
-
     }
-
     /*
      * Resizing image size
      */

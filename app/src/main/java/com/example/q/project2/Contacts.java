@@ -71,6 +71,8 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
 
     public static String accountUID; // facebook unique id
 
+    private static final String baseURL = "http://52.162.211.235:7714";
+
     LoginButton loginButton;
     CallbackManager callbackManager;
 
@@ -227,41 +229,28 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
 
     }
 
-    private String download(String username){
+    private String download(String username, String source){
         String result = "";
-
         HttpURLConnection con = null;
         InputStreamReader isr = null;
         BufferedReader br = null;
-
         try{
-            URL url = new URL("http://52.162.211.235:7714/contact?hash=" + username);
+            URL url = new URL(baseURL + source + username);
             con = (HttpURLConnection) url.openConnection();
             con.setConnectTimeout(2500);
             con.setReadTimeout(2500);
-
             isr = new InputStreamReader(con.getInputStream());
             br = new BufferedReader(isr);
-
             String str = null;
             while ((str = br.readLine()) != null) {
                 result += str + "\n";
             }
-
         }catch(Exception e){
             e.printStackTrace();
         }finally{
-            if(con != null){
-                try{con.disconnect();}catch(Exception e){}
-            }
-
-            if(isr != null){
-                try{isr.close();}catch(Exception e){}
-            }
-
-            if(br != null){
-                try{br.close();}catch(Exception e){}
-            }
+            if(con != null){ try{con.disconnect();}catch(Exception e){} }
+            if(isr != null){ try{isr.close();}catch(Exception e){} }
+            if(br != null){ try{br.close();}catch(Exception e){} }
         }
         return result;
     }
@@ -296,11 +285,27 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         return result;
     }
 
+    private boolean isLoggedIn(){
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        return accessToken != null && !accessToken.isExpired();
+    }
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void validate(){
+        if(isLoggedIn()){
+            accountUID = Profile.getCurrentProfile().getId();
+            String FBname = Profile.getCurrentProfile().getName() + Profile.getCurrentProfile().getFirstName();
+
+            String register_info = "{\"hash\":\"" + accountUID + "\",\"name\":\"" + FBname + "\"\\}";
+            Log.i("POST /REGISTER","String <" + register_info + "> to " + "/register");
+            post_string(register_info,"/register");
+            download(accountUID,"/");
+        }
     }
 
     @Override
@@ -314,19 +319,10 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
             return view;
         }
 
-
-        // facebook login check
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        final boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
-        //
-
-        // Already logged in when fragment starts
-        if(Profile.getCurrentProfile() != null) accountUID = Profile.getCurrentProfile().getId();
-
-        //Toast.makeText(getContext(),"You are logged in as " + accountUID+ ".", LENGTH_LONG).show();
+        // Already logged in when fragment starts :: Login Validation & Registration
+        validate();
 
         callbackManager = CallbackManager.Factory.create();
-
 
         loginButton = (LoginButton) view.findViewById(R.id.login_button);
         loginButton.setReadPermissions("email");
@@ -337,21 +333,13 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                accountUID = Profile.getCurrentProfile().getId();
-                // App code
+                validate();
             }
-
             @Override
-            public void onCancel() {
-                // App code
-            }
-
+            public void onCancel() { }
             @Override
-            public void onError(FacebookException exception) {
-                // App code
-            }
+            public void onError(FacebookException exception) { }
         });
-
         mSwipeRefreshLayout = view.findViewById(R.id.swipe_layout_contacts);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
@@ -379,9 +367,8 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                 new Thread(){
                     public void run(){
                         if(token==null) return;
-                        String response_result = download(accountUID); // "test" -> accountUID
+                        String response_result = download(accountUID,"/contacts?hash="); // "test" -> accountUID
                         //String response_result = "{\"request\":\"success\",\"contacts\":[{\"id\":2,\"user_id\":1,\"contact_name\":\"jjong\",\"phone\":\"010-1231-1234\",\"description\":null},{\"id\":4,\"user_id\":8,\"contact_name\":\"jjong9\",\"phone\":\"010-1331-1234\",\"description\":null}]}";
-                        // test purpose only
                         String[] splicee1 = response_result.split("\"contacts\":");
                         if(splicee1.length==1) return;
                         String actual_res = splicee1[1];
@@ -427,64 +414,64 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                     return;
                 }
 
-                String sent = JSONForm(getContacts(lv),"\"test\""); // the JSON String (String form)
-                try {
-                    final JSONObject contact_jsonobj = new JSONObject(sent); // The actual JSON Object to be sent
-                    Log.i("JsontoString",contact_jsonobj.toString());
-                    new Thread(){
-                        public void run(){
-                            try {
-                                // SEND REQUEST TO POST METHOD CODE
-                                // 52.162.211.235:7714 / contact?hash=213412341 :받아오기(GET)
-                                // /contactHandle    (POST) hash : 132412341, contacts : [{ "name" : "asdfh"
-                                URL url = new URL("http://52.162.211.235:7714/contactHandler");
-                                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                                httpURLConnection.setRequestMethod("POST");
-                                httpURLConnection.setDoOutput(true);
-                                httpURLConnection.setRequestProperty("Content-Type","application/json");
-                                httpURLConnection.setRequestProperty("Accept","application/json");
-
-                                DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
-                                wr.write(contact_jsonobj.toString().getBytes());
-                                Integer responsecode = httpURLConnection.getResponseCode();
-
-                                BufferedReader bufferedReader;
-
-                                if(responsecode>199 && responsecode < 300){
-                                    bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
-                                } else {
-                                    bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getErrorStream()));
-                                }
-                                // get response part
-                                StringBuilder content = new StringBuilder();
-                                String line;
-                                while ((line=bufferedReader.readLine()) != null) {
-                                    content.append(line).append("\n");
-                                }
-                                bufferedReader.close();
-
-                                Log.i("response",content.toString());
-                                /// POST TO SERVER
-                            } catch (ProtocolException e) {
-                                e.printStackTrace();
-                            } catch (MalformedURLException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }.start();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                String contact_str = JSONForm(getContacts(lv),"\"test\""); // the JSON String (String form)
+                post_string(contact_str,"/contactHandler");
             }
         });
 
         return view;
     }
 
+    public static void post_string(String sent, final String destination){
+        try {
+            final JSONObject contact_jsonobj = new JSONObject(sent); // The actual JSON Object to be sent
+            new Thread(){
+                public void run(){
+                    try {
+                        // SEND REQUEST TO POST METHOD CODE
+                        // 52.162.211.235:7714 / contact?hash=213412341 :받아오기(GET)
+                        // /contactHandle    (POST) hash : 132412341, contacts : [{ "name" : "asdfh"
+                        URL url = new URL(baseURL + destination);
+                        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                        httpURLConnection.setRequestMethod("POST");
+                        httpURLConnection.setDoOutput(true);
+                        httpURLConnection.setRequestProperty("Content-Type","application/json");
+                        httpURLConnection.setRequestProperty("Accept","application/json");
 
+                        DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
+                        wr.write(contact_jsonobj.toString().getBytes());
+                        Integer responsecode = httpURLConnection.getResponseCode();
 
+                        BufferedReader bufferedReader;
+
+                        if(responsecode>199 && responsecode < 300){
+                            bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+                        } else {
+                            bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getErrorStream()));
+                        }
+                        // get response part
+                        StringBuilder content = new StringBuilder();
+                        String line;
+                        while ((line=bufferedReader.readLine()) != null) {
+                            content.append(line).append("\n");
+                        }
+                        bufferedReader.close();
+
+                        Log.i("response",content.toString());
+                        /// POST TO SERVER
+                    } catch (ProtocolException e) {
+                        e.printStackTrace();
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
     private class ListViewExampleClickListener implements AdapterView.OnItemClickListener {
         @Override
