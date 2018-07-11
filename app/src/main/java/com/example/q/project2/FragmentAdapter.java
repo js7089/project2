@@ -25,7 +25,7 @@ public class FragmentAdapter extends FragmentStatePagerAdapter {
             case 1 :
                 return new GridViewFragment();
             case 2 :
-                return new GridViewFragment();
+                return new WebViewFragment();
 //                return new Temp();
             default:
                 Log.e("MainFragmentAdapter : ", "CANNOT GET FRAGMENTS");
