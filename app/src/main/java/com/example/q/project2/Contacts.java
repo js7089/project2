@@ -229,7 +229,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
 
     }
 
-    private String download(String username, String source){
+    public static String download(String username, String source){
         String result = "";
         HttpURLConnection con = null;
         InputStreamReader isr = null;

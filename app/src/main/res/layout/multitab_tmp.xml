@@ -27,12 +27,12 @@
             <TextView
                 android:id="@+id/titledialog"
                 android:layout_width="0dp"
-                android:layout_weight="0.9"
                 android:layout_height="wrap_content"
-                android:text="연락처 편집"
-                android:textSize="20sp"
                 android:layout_marginTop="10dp"
-                android:textColor="#000000"/>
+                android:layout_weight="0.9"
+                android:text="Online Gallery"
+                android:textColor="#000000"
+                android:textSize="20sp" />
         </TableRow>
 
         <TableRow
@@ -47,58 +47,14 @@
                 android:layout_weight="0.1"
                 android:text=" " />
 
-            <TextView
-                android:id="@+id/NameField"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.2"
-                android:text="이름" />
+            <ListView
+                android:id="@+id/og_list"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_weight="0.8" />
 
-            <EditText
-                android:id="@+id/pName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.6"
-                android:ems="10"
-                android:hint="이름"
-                android:inputType="textPersonName" />
             <TextView
                 android:id="@+id/none3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.1"
-                android:text=" " />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-
-            <TextView
-                android:id="@+id/none2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.1"
-                android:text=" " />
-
-            <TextView
-                android:id="@+id/pNoText"
-                android:layout_width="0dp"
-                android:layout_weight="0.2"
-                android:layout_height="wrap_content"
-                android:text="연락처" />
-
-            <EditText
-                android:id="@+id/pNo"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.6"
-                android:ems="10"
-                android:hint="연락처"
-                android:inputType="phone" />
-            <TextView
-                android:id="@+id/none4"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.1"
@@ -118,13 +74,6 @@
                 android:layout_weight="0.1"
                 android:text=" " />
 
-            <Button
-                android:id="@+id/delete"
-                android:layout_height="wrap_content"
-                android:layout_width="0dp"
-                android:layout_weight="0.5"
-                android:text="삭제" />
-
             <TextView
                 android:id="@+id/none5"
                 android:layout_width="0dp"
@@ -133,11 +82,11 @@
                 android:text=" " />
 
             <Button
-                android:id="@+id/rewrite"
-                android:layout_height="wrap_content"
+                android:id="@+id/btn_close_og"
                 android:layout_width="0dp"
-                android:layout_weight="0.5"
-                android:text="수정" />
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2"
+                android:text="Close" />
 
             <TextView
                 android:id="@+id/none6"
