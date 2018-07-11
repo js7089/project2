@@ -299,12 +299,18 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
     public void validate(){
         if(isLoggedIn()){
             accountUID = Profile.getCurrentProfile().getId();
-            String FBname = Profile.getCurrentProfile().getName() + Profile.getCurrentProfile().getFirstName();
+            String FBname = Profile.getCurrentProfile().getName();
 
-            String register_info = "{\"hash\":\"" + accountUID + "\",\"name\":\"" + FBname + "\"\\}";
+            String register_info = "{\"hash\":\"" + accountUID + "\",\"name\":\"" + FBname + "\"" + "}";
             Log.i("POST /REGISTER","String <" + register_info + "> to " + "/register");
             post_string(register_info,"/register");
-            download(accountUID,"/");
+
+            new Thread(){
+                public void run(){
+                    download(accountUID,"/");
+                }
+            }.start();
+            //download(accountUID,"/");
         }
     }
 
@@ -366,8 +372,10 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
 
                 new Thread(){
                     public void run(){
-                        if(token==null) return;
-                        String response_result = download(accountUID,"/contacts?hash="); // "test" -> accountUID
+                        if(!isLoggedIn()) return;
+
+
+                        String response_result = download(accountUID,"/contact?hash="); // "test" -> accountUID
                         //String response_result = "{\"request\":\"success\",\"contacts\":[{\"id\":2,\"user_id\":1,\"contact_name\":\"jjong\",\"phone\":\"010-1231-1234\",\"description\":null},{\"id\":4,\"user_id\":8,\"contact_name\":\"jjong9\",\"phone\":\"010-1331-1234\",\"description\":null}]}";
                         String[] splicee1 = response_result.split("\"contacts\":");
                         if(splicee1.length==1) return;
@@ -414,7 +422,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                     return;
                 }
 
-                String contact_str = JSONForm(getContacts(lv),"\"test\""); // the JSON String (String form)
+                String contact_str = JSONForm(getContacts(lv),"\"" + accountUID+ "\""); // the JSON String (String form)
                 post_string(contact_str,"/contactHandler");
             }
         });

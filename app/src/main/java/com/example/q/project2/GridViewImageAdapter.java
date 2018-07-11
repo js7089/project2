@@ -79,11 +79,15 @@ public class GridViewImageAdapter extends BaseAdapter {
                 image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
                 byte[] byteArray = byteArrayOutputStream .toByteArray();
                 String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
-                String json_to_img = "\\{\"hash\":" + Contacts.accountUID
-                        + ",path:" + _filePaths.get(position) + ","
-                        + "image:" + encoded + "\\}";
-                Log.i("bytearrayIMAGE",json_to_img);
+                String json_to_img = "{" + "\"hash\"" + ":" + "\"" + accountUID + "\",\"galleries\":"
+                        + "[" + "{" + "\"path\":\"" + _filePaths.get(position) + "\"" + ","
+                        + "\"url\":" + "\"" + encoded + "\"" + "}" + "]" + "}";
+
+
+
+                Log.i("Upload_imagesize",String.valueOf(encoded.length()));
                 Contacts.post_string(json_to_img,"/galleryHandler");   // To Be Changed &
+                Toast.makeText(_activity, "Uploading" + _filePaths.get(position), Toast.LENGTH_SHORT).show();
 
                 return true;
             }

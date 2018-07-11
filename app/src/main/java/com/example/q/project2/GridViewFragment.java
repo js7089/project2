@@ -54,7 +54,6 @@ public class GridViewFragment extends Fragment implements SwipeRefreshLayout.OnR
         // loading all image paths from SD card
         imagePaths = utils.getFilePaths();
 
-
         // Gridview adapter
         adapter = new GridViewImageAdapter(getActivity(), imagePaths,
                 columnWidth);
