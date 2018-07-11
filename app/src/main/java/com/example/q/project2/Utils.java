@@ -41,7 +41,7 @@ public class Utils {
 
         File directory = new File(
                 android.os.Environment.getExternalStorageDirectory()
-                        + "/Pictures/ScreenShots");
+                        + "/Download");
 
         // check for directory
         if (directory.isDirectory()) {
@@ -65,20 +65,21 @@ public class Utils {
                 }
             } else {
                 // image directory is empty
-                Toast.makeText(
+                /*Toast.makeText(
                         _context,
                         AppConstant.PHOTO_ALBUM
                                 + " is empty. Please load some images in it !",
                         Toast.LENGTH_LONG).show();
+                        */
             }
 
         } else {
-            AlertDialog.Builder alert = new AlertDialog.Builder(_context);
+            /*AlertDialog.Builder alert = new AlertDialog.Builder(_context);
             alert.setTitle("Error!");
             alert.setMessage(AppConstant.PHOTO_ALBUM
                     + " directory path is not valid! Please set the image directory name AppConstant.java class");
             alert.setPositiveButton("OK", null);
-            alert.show();
+            alert.show();*/
         }
 
         return filePaths;

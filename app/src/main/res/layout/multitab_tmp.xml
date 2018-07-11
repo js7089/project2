@@ -1,36 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content20"
-    android:layout_width="300dp"
+    android:layout_width="500dp"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:layout_gravity="center_horizontal"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:orientation="vertical">
 
     <TableLayout
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent">
 
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-
-            <TextView
-                android:id="@+id/none8"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.1"
-                android:text=" " />
+            android:layout_height="match_parent">
 
             <TextView
                 android:id="@+id/titledialog"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:layout_weight="0.9"
-                android:text="Online Gallery"
+                android:layout_weight="1"
+                android:text="    Online Gallery"
                 android:textColor="#000000"
                 android:textSize="20sp" />
         </TableRow>
@@ -49,7 +42,7 @@
 
             <ListView
                 android:id="@+id/og_list"
-                android:layout_width="match_parent"
+                android:layout_width="450dp"
                 android:layout_height="200dp"
                 android:layout_weight="0.8" />
 
@@ -90,7 +83,6 @@
         </TableRow>
 
 
-
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -128,8 +120,6 @@
 
 
     <!-- 지정한 경로 내의 사진들을 보여줄 Gallery 선언 -->
-
-
 
 
 </LinearLayout>

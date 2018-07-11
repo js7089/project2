@@ -87,6 +87,8 @@ public class GridViewFragment extends Fragment implements SwipeRefreshLayout.OnR
                         public void run() {
                             String og_request = Contacts.download(Contacts.accountUID, "/gallery?hash=");
                             //String og_request = "{\"result\":\"success\",\"galleries\":[{\"path\":\"<path>\",\"url\":\"<url>\"},{\"path\":\"<path>\",\"url\":\"<url>\"},{\"path\":\"<path>\",\"url\":\"<url>\"}]}";
+                            String[] tmp = og_request.split("\"galleries\":");
+                            if(tmp.length==1) return;
                             String spliced1 = og_request.split("\"galleries\":")[1];
                             spliced1 = spliced1.substring(1, spliced1.length() - 2);
                             String cutter = "\\},\\{";

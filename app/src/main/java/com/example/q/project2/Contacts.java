@@ -287,6 +287,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
 
     private boolean isLoggedIn(){
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        if(Profile.getCurrentProfile()==null){ return false;}
         return accessToken != null && !accessToken.isExpired();
     }
 
@@ -298,6 +299,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
 
     public void validate(){
         if(isLoggedIn()){
+
             accountUID = Profile.getCurrentProfile().getId();
             String FBname = Profile.getCurrentProfile().getName();
 
