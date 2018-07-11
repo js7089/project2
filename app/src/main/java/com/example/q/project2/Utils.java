@@ -41,7 +41,7 @@ public class Utils {
 
         File directory = new File(
                 android.os.Environment.getExternalStorageDirectory()
-                        + "/Pictures/");
+                        + "/Pictures/ScreenShots");
 
         // check for directory
         if (directory.isDirectory()) {
