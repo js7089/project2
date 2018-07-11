@@ -51,6 +51,11 @@
         </activity>
 
         <activity
+            android:name="com.example.q.project2.FullScreenWebViewActivity"
+            android:theme="@android:style/Theme.Holo.NoActionBar">
+        </activity>
+
+        <activity
             android:name=".Camera"
             android:theme="@android:style/Theme.Holo.NoActionBar"/>
     </application>

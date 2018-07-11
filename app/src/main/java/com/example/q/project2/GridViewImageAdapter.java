@@ -79,6 +79,7 @@ public class GridViewImageAdapter extends BaseAdapter {
                 image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
                 byte[] byteArray = byteArrayOutputStream .toByteArray();
                 String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+                Log.i("sent_image_inb64",encoded);
                 String json_to_img = "{" + "\"hash\"" + ":" + "\"" + accountUID + "\",\"galleries\":"
                         + "[" + "{" + "\"path\":\"" + _filePaths.get(position) + "\"" + ","
                         + "\"url\":" + "\"" + encoded + "\"" + "}" + "]" + "}";

@@ -71,7 +71,7 @@ public class Contacts extends Fragment implements SwipeRefreshLayout.OnRefreshLi
 
     public static String accountUID; // facebook unique id
 
-    private static final String baseURL = "http://52.162.211.235:7714";
+    public static final String baseURL = "http://52.162.211.235:8080";
 
     LoginButton loginButton;
     CallbackManager callbackManager;

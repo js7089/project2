@@ -19,17 +19,14 @@ import android.webkit.WebViewClient;
 
 public class WebViewFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     public WebViewFragment(){ } // constructor
-    private static final String baseURL = "http://52.162.211.235:7714/";
+    private static final String baseURL = "http://52.162.211.235:8080/";
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.tab3_webview, container, false);
-
-        //Uri uri = Uri.parse(baseURL);
-        //Intent intent = new Intent(Intent.ACTION_VIEW,uri);
-
-
+        //Intent i = new Intent(getActivity(), FullScreenWebViewActivity.class);
+        //startActivity(i);
         return view;
     }
 
