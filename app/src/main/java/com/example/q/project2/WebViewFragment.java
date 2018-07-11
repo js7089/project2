@@ -24,9 +24,12 @@ public class WebViewFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.tab3_webview, container, false);
-        //Intent i = new Intent(getActivity(), FullScreenWebViewActivity.class);
-        //startActivity(i);
+        final View view = inflater.inflate(R.layout.tab3_webview2, container, false);
+        WebView wb = (WebView) view.findViewById(R.id.webUImain);
+        wb.getSettings().setJavaScriptEnabled(true);
+        wb.getSettings().setAppCacheEnabled(true);
+        wb.loadUrl(baseURL);
+
         return view;
     }
 
